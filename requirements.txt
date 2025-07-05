@@ -1,0 +1,8 @@
+requests
+beautifulsoup4
+openai-whisper
+imageio-ffmpeg
+yt-dlp
+fpdf
+numpy<2.0
+playwright
