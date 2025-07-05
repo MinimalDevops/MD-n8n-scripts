@@ -1,0 +1,30 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Node.js
+node_modules/
+
+# macOS
+.DS_Store
+
+# Output
+output.pdf
+
+tmp/
+!tmp/.gitkeep
+
+# Chrome user data
+chrome-profiles/
+
+# Environment
+.env
+
+# Logs
+*.log
+nohup.out 
+.direnv/
+tmp/
