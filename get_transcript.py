@@ -19,7 +19,7 @@ if __name__ == "__main__":
         if not quiet:
             print("Failed to download audio")
         sys.exit(2)
-    transcription = transcribe_audio(audio_path)
+    transcription = transcribe_audio(audio_path, delete_original=True)
     if not transcription:
         if not quiet:
             print("Failed to transcribe audio")

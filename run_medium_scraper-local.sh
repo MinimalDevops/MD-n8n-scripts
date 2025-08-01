@@ -17,7 +17,7 @@ fi
 if ! lsof -i:9224 >/dev/null; then
   nohup "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
     --remote-debugging-port=9224 \
-    --user-data-dir="./chrome-profiles/automation" \
+    --user-data-dir="/Users/tapindersingh/Documents/central-chrome-profile" \
     --no-first-run \
     --no-default-browser-check \
     --disable-popup-blocking > /dev/null 2>&1 &

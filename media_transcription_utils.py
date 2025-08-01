@@ -63,7 +63,7 @@ def download_audio(youtube_url, output_path="audio.mp3"):
         return None, None
 
 # Function to transcribe audio using whisper
-def transcribe_audio(audio_path):
+def transcribe_audio(audio_path, delete_original=False):
     wav_path = None
     try:
         qprint("Attempting to transcribe audio using Whisper...")
@@ -73,7 +73,9 @@ def transcribe_audio(audio_path):
         os.environ["PATH"] += os.pathsep + os.path.dirname(ffmpeg_path)
         os.environ["FFMPEG_BINARY"] = ffmpeg_path  # Set FFMPEG_BINARY environment variable explicitly
         # Convert audio to WAV format to ensure compatibility
-        wav_path = audio_path.replace('.mp3', '.wav')
+        # Create a temporary WAV file in the same directory as the input file
+        base_name = os.path.splitext(audio_path)[0]
+        wav_path = base_name + "_temp.wav"
         if os.path.exists(wav_path):
             os.remove(wav_path)
         stdout = subprocess.DEVNULL if os.environ.get("QUIET") else None
@@ -88,7 +90,8 @@ def transcribe_audio(audio_path):
         qprint(f"An error occurred during transcription: {e}")
         return None
     finally:
-        if os.path.exists(audio_path):
+        # Only clean up the original file if explicitly requested
+        if delete_original and os.path.exists(audio_path):
             os.remove(audio_path)
         if wav_path and os.path.exists(wav_path):
             os.remove(wav_path)
