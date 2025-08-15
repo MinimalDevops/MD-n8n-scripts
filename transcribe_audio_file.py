@@ -61,7 +61,9 @@ def main():
         sys.exit(4)
     
     # Save transcription to local tmp/transcribed_audio.txt
-    tmp_dir = "tmp"
+    # Use absolute path based on script location to ensure n8n can find the file
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    tmp_dir = os.path.join(script_dir, "tmp")
     # Create tmp directory if it doesn't exist
     if not os.path.exists(tmp_dir):
         os.makedirs(tmp_dir)
