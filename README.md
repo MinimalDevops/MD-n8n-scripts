@@ -101,7 +101,7 @@ python scrape_webpage.py <URL> --quiet
 ```
 
 ## Notes
-- **Chrome Profile for Logged-in Content**: The `run_medium_scraper-local.sh` script automatically uses a dedicated Chrome profile stored in `./chrome-profiles/automation`. The first time you run it, a new Chrome window will open. You must log in to the required websites (e.g., Medium) in *that specific window* to enable scraping of paid or logged-in content. Your session will be saved for future runs.
+- **Chrome Profile for Logged-in Content**: The `run_medium_scraper-local.sh` script uses `$HOME/Documents/central-chrome-profile` by default with remote debugging on port `9223`. Set `CHROME_PROFILE_DIR` to use a different profile, and make sure you are logged in to required websites (e.g., Medium) in that profile so paid/logged-in content can be scraped.
 - The Node.js scraper is tailored for Medium articles but can be adapted for other sites. It now also:
   - Handles and removes common pop-ups and cookie banners automatically.
   - Expands "Read more" links on YouTube video and community posts to capture all visible text.
