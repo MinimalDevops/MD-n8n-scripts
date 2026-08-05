@@ -11,6 +11,7 @@ import sys
 from fpdf import FPDF
 import requests
 import asyncio
+from urllib.parse import urlparse
 
 # Helper to print only if not in quiet mode
 def qprint(*args, **kwargs):
@@ -23,10 +24,51 @@ def convert_shorts_url(url):
         return re.sub(r"/shorts/", "/watch?v=", url)
     return url
 
+
+def _is_instagram_url(url):
+    hostname = (urlparse(url).hostname or '').lower()
+    return hostname == 'instagram.com' or hostname.endswith('.instagram.com')
+
+
+def _get_cookie_options(url):
+    """Return yt-dlp browser-cookie settings for authenticated Instagram downloads."""
+    if not _is_instagram_url(url):
+        return {}
+
+    cookie_file = os.environ.get('YTDLP_COOKIES_FILE', '').strip()
+    if cookie_file:
+        cookie_file = os.path.abspath(os.path.expanduser(cookie_file))
+        if not os.path.isfile(cookie_file):
+            raise FileNotFoundError(f"YTDLP_COOKIES_FILE does not exist: {cookie_file}")
+        qprint("Using the configured cookie file for authenticated Instagram access")
+        return {'cookiefile': cookie_file}
+
+    browser = os.environ.get('YTDLP_COOKIES_BROWSER', 'chrome').strip()
+    if not browser or browser.lower() in {'none', 'off', 'false'}:
+        return {}
+
+    profile = (
+        os.environ.get('YTDLP_BROWSER_PROFILE')
+        or os.environ.get('CHROME_PROFILE_DIR')
+        or ''
+    ).strip()
+    if not profile:
+        default_profile = os.path.expanduser('~/Documents/central-chrome-profile')
+        if os.path.exists(default_profile):
+            profile = default_profile
+
+    # yt-dlp accepts (browser, profile, keyring, container). A profile path is
+    # kept in the environment so no machine-specific path or cookie is stored
+    # in the repository.
+    cookie_settings = (browser, profile or None, None, None)
+    qprint(f"Using cookies from {browser} for authenticated Instagram access")
+    return {'cookiesfrombrowser': cookie_settings}
+
 # Function to download audio from YouTube with yt-dlp
 def download_audio(youtube_url, output_path="audio.mp3"):
     try:
-        qprint("Attempting to download audio from YouTube using yt-dlp...")
+        source_name = "Instagram/YouTube" if _is_instagram_url(youtube_url) else "YouTube"
+        qprint(f"Attempting to download audio from {source_name} using yt-dlp...")
         # Remove existing audio file to avoid confusion
         if os.path.exists(output_path):
             os.remove(output_path)
@@ -41,6 +83,7 @@ def download_audio(youtube_url, output_path="audio.mp3"):
             'nocheckcertificate': True,  # Bypass SSL certificate verification
             'ffmpeg_location': ffmpeg.get_ffmpeg_exe(),  # Provide ffmpeg location from imageio_ffmpeg
         }
+        ydl_opts.update(_get_cookie_options(youtube_url))
         if os.environ.get("QUIET"):
             ydl_opts['quiet'] = True
             ydl_opts['no_warnings'] = True
@@ -59,6 +102,12 @@ def download_audio(youtube_url, output_path="audio.mp3"):
             qprint(f"Audio successfully downloaded as {sanitized_title}.mp3")
             return f"{sanitized_title}.mp3", sanitized_title
     except Exception as e:
+        if _is_instagram_url(youtube_url) and 'empty media response' in str(e).lower():
+            qprint(
+                "Instagram returned no media. Log in to Instagram in Chrome and grant "
+                "your terminal access to Chrome's Keychain item, or set "
+                "YTDLP_COOKIES_FILE to a local Netscape-format cookie file."
+            )
         qprint(f"An error occurred while downloading audio: {e}")
         return None, None
 
@@ -106,4 +155,4 @@ def create_pdf(transcription, pdf_path):
         os.makedirs(os.path.dirname(pdf_path))
     pdf.output(pdf_path)
     qprint(f"PDF created at {pdf_path}")
-    return pdf_path 
+    return pdf_path

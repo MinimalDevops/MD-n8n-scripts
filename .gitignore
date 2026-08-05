@@ -23,6 +23,11 @@ chrome-profiles/
 # Environment
 .env
 
+# Browser authentication exports
+cookies.txt
+*-cookies.txt
+*.cookies.txt
+
 # Logs
 *.log
 nohup.out 

@@ -64,6 +64,17 @@ python get_transcript.py <VIDEO_URL> --quiet
   ```sh
   python get_transcript.py https://www.youtube.com/watch?v=example --quiet
   ```
+- Instagram posts that require login use Chrome cookies locally by default. Make sure you are logged in to Instagram in Chrome. To use a non-default Chrome profile, set the profile path before running the script:
+  ```sh
+  export YTDLP_BROWSER_PROFILE="$HOME/Documents/central-chrome-profile"
+  python get_transcript.py "https://www.instagram.com/reel/example/"
+  ```
+  If macOS cannot decrypt Chrome cookies, export a local Netscape-format cookie file instead:
+  ```sh
+  export YTDLP_COOKIES_FILE="$HOME/.config/yt-dlp/instagram-cookies.txt"
+  python get_transcript.py "https://www.instagram.com/reel/example/"
+  ```
+  Set `YTDLP_COOKIES_BROWSER=none` to disable browser-cookie access. Cookie files and browser cookies are read locally at runtime and are never written to the repository.
 
 ### Transcribe Local Audio File (Python)
 ```sh
