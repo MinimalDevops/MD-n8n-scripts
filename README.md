@@ -75,6 +75,7 @@ python get_transcript.py <VIDEO_URL> --quiet
   python get_transcript.py "https://www.instagram.com/reel/example/"
   ```
   Set `YTDLP_COOKIES_BROWSER=none` to disable browser-cookie access. Cookie files and browser cookies are read locally at runtime and are never written to the repository.
+- If yt-dlp still reports an empty Instagram media response, the script uses Chrome’s rendered video as a fallback. It reuses the logged-in Chrome session on port `9223` when available, or launches a temporary headless browser for public reels. Set `INSTAGRAM_BROWSER_DEBUG_PORT` if your Chrome debugging port differs.
 
 ### Transcribe Local Audio File (Python)
 ```sh
