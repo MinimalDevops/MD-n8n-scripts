@@ -7,6 +7,11 @@ const puppeteer = require("puppeteer");
 const path = require("path");
 const fs = require("fs");
 
+const DEBUG_ENDPOINTS = [
+  "http://127.0.0.1:9223",
+  "http://localhost:9223",
+];
+
 // Function to sanitize filename from URL and place it in a tmp folder
 const getPdfPathFromUrl = (url) => {
   const tmpDir = path.join(process.cwd(), 'tmp');
@@ -30,10 +35,33 @@ const getPdfPathFromUrl = (url) => {
 
   const pdfPath = getPdfPathFromUrl(url);
 
-  const browser = await puppeteer.connect({
-    browserURL: 'http://localhost:9224',
-    defaultViewport: null,
-  });
+  let browser = null;
+  let lastConnectError = null;
+
+  for (const browserURL of DEBUG_ENDPOINTS) {
+    try {
+      browser = await puppeteer.connect({
+        browserURL,
+        defaultViewport: null,
+      });
+      if (!quiet) console.log(`Connected to Chrome debug endpoint: ${browserURL}`);
+      break;
+    } catch (err) {
+      lastConnectError = err;
+    }
+  }
+
+  if (!browser) {
+    if (!quiet) {
+      console.error("Could not connect to Chrome debug endpoint on port 9223.");
+      console.error("Make sure Chrome is running with remote debugging enabled.");
+      console.error("Try: ./run_medium_scraper-local.sh <URL>");
+      if (lastConnectError && lastConnectError.message) {
+        console.error(`Last connection error: ${lastConnectError.message}`);
+      }
+    }
+    process.exit(1);
+  }
 
   const page = await browser.newPage();
 

@@ -1,0 +1,32 @@
+use_default_settings: true
+
+general:
+  debug: false
+  instance_name: "Local SearXNG"
+
+search:
+  safe_search: 1
+  formats:
+    - html
+    - json
+
+server:
+  bind_address: "0.0.0.0"
+  port: 8080
+  secret_key: "local-development-secret-overridden-by-searxng-secret"
+  limiter: false
+  public_instance: false
+  image_proxy: false
+
+valkey:
+  url: "valkey://valkey:6379/0"
+
+# These optional engines currently fail during startup in this local setup and
+# are not needed for the n8n web-search tool.
+engines:
+  - name: ahmia
+    inactive: true
+  - name: torch
+    inactive: true
+  - name: wikidata
+    inactive: true
